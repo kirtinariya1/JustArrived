@@ -1,0 +1,63 @@
+<?php
+$items = $this->getNewProductCollection();
+$abstractProductBlock = $block->getLayout()->createBlock('\Magento\Catalog\Block\Product\AbstractProduct');
+?>
+<?php if(count($items)): ?>
+<div class="heel-slider-container">
+	<div class="title">
+		<h2>Just Arrived</h2>
+	</div>
+	<div class="slide-items">
+		<div class="just_arrived_slider">
+			<?php foreach ($items as $product):
+				$resizedImageUrl = $block->resizeImage($product, 'product_small_image', 200, 200)->getUrl();
+			?>
+			<div class="product-item">
+				<a class="product-item-photo" href="<?php echo $product->getProductUrl(); ?>"> 
+					<img src="<?php echo $resizedImageUrl; ?>" alt="<?php echo $block->escapeHtml($product->getName()) ?>" /> 
+				</a>
+				<div class="product-item-details"><strong class="product-item-name"><a href="<?php /* @escapeNotVerified */ echo $product->getProductUrl() ?>"><?php echo $block->escapeHtml($product->getName()) ?></a></strong>		
+						<?php echo $abstractProductBlock->getProductPrice($product);?>
+						<?php
+						$postDataHelper = $this->helper('Magento\Framework\Data\Helper\PostHelper');
+						$postData = $postDataHelper->getPostData($block->getAddToCartUrl($product), ['product' => $product->getEntityId()]);
+						$postParams = json_decode($postData, true);
+						?>	
+						<form data-role="tocart-form" action="<?php echo $block->getAddToCartUrl($product); ?>" method="post">
+		                    <?php echo $block->getBlockHtml('formkey')?>
+		                    <button type="submit"
+		                           title="Add to Cart"
+		                           class="action tocart primary">
+		                           <span>Add to Cart</span>
+		                    </button>
+		                </form>
+				</div>
+				
+			</div>
+			 <?php endforeach; ?>
+		</div>
+	</div>
+</div>
+<script>
+require(['jquery', 'slick'], function ($) {
+    $(document).ready(function () {
+        $('.just_arrived_slider').slick({
+            dots: false,
+            arrows:true,
+            infinite:false,
+            autoplay:true,
+            autoplaySpeed:2000
+        });        
+    });
+});
+</script>
+<script type="text/x-magento-init">
+  {
+    "[data-role=tocart-form], .form.map.checkout": {
+      "catalogAddToCart": {
+         "bindSubmit": true
+       }
+    }
+  }
+</script>
+<?php endif; ?>
